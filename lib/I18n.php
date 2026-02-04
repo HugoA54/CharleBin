@@ -79,7 +79,7 @@ class I18n
      * @access public
      * @static
      * @param  string $messageId
-     * @param  mixed $args one or multiple parameters injected into placeholders
+     * @param  mixed  $args      one or multiple parameters injected into placeholders
      * @return string
      */
     public static function _($messageId)
@@ -93,7 +93,7 @@ class I18n
      * @access public
      * @static
      * @param  string $messageId
-     * @param  mixed $args one or multiple parameters injected into placeholders
+     * @param  mixed  $args      one or multiple parameters injected into placeholders
      * @return string
      */
     public static function translate($messageId)
@@ -163,9 +163,8 @@ class I18n
         $availableLanguages = self::getAvailableLanguages();
 
         // check if the lang cookie was set and that language exists
-        if (
-            array_key_exists('lang', $_COOKIE) &&
-            ($key = array_search($_COOKIE['lang'], $availableLanguages)) !== false
+        if (array_key_exists('lang', $_COOKIE) 
+            && ($key = array_search($_COOKIE['lang'], $availableLanguages)) !== false
         ) {
             $match = $availableLanguages[$key];
         }
@@ -221,7 +220,8 @@ class I18n
                 if (preg_match(
                     '/(\*|[a-zA-Z0-9]{1,8}(?:-[a-zA-Z0-9]{1,8})*)(?:\s*;\s*q\s*=\s*(0(?:\.\d{0,3})|1(?:\.0{0,3})))?/',
                     trim($languageRange), $match
-                )) {
+                )
+                ) {
                     if (!isset($match[2])) {
                         $match[2] = '1.0';
                     } else {
@@ -315,33 +315,33 @@ class I18n
     protected static function _getPluralForm($n)
     {
         switch (self::$_language) {
-            case 'cs':
-            case 'sk':
-                return $n === 1 ? 0 : ($n >= 2 && $n <= 4 ? 1 : 2);
-            case 'co':
-            case 'fr':
-            case 'oc':
-            case 'tr':
-            case 'zh':
-                return $n > 1 ? 1 : 0;
-            case 'he':
-                return $n === 1 ? 0 : ($n === 2 ? 1 : (($n < 0 || $n > 10) && ($n % 10 === 0) ? 2 : 3));
-            case 'id':
-            case 'jbo':
-            case 'th':
-                return 0;
-            case 'lt':
-                return $n % 10 === 1 && $n % 100 !== 11 ? 0 : (($n % 10 >= 2 && $n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
-            case 'pl':
-                return $n === 1 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
-            case 'ru':
-            case 'uk':
-                return $n % 10 === 1 && $n % 100 != 11 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
-            case 'sl':
-                return $n % 100 === 1 ? 1 : ($n % 100 === 2 ? 2 : ($n % 100 === 3 || $n % 100 === 4 ? 3 : 0));
+        case 'cs':
+        case 'sk':
+            return $n === 1 ? 0 : ($n >= 2 && $n <= 4 ? 1 : 2);
+        case 'co':
+        case 'fr':
+        case 'oc':
+        case 'tr':
+        case 'zh':
+            return $n > 1 ? 1 : 0;
+        case 'he':
+            return $n === 1 ? 0 : ($n === 2 ? 1 : (($n < 0 || $n > 10) && ($n % 10 === 0) ? 2 : 3));
+        case 'id':
+        case 'jbo':
+        case 'th':
+            return 0;
+        case 'lt':
+            return $n % 10 === 1 && $n % 100 !== 11 ? 0 : (($n % 10 >= 2 && $n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
+        case 'pl':
+            return $n === 1 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
+        case 'ru':
+        case 'uk':
+            return $n % 10 === 1 && $n % 100 != 11 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
+        case 'sl':
+            return $n % 100 === 1 ? 1 : ($n % 100 === 2 ? 2 : ($n % 100 === 3 || $n % 100 === 4 ? 3 : 0));
             // bg, ca, de, el, en, es, et, fi, hu, it, nl, no, pt
-            default:
-                return $n !== 1 ? 1 : 0;
+        default:
+            return $n !== 1 ? 1 : 0;
         }
     }
 
