@@ -102,7 +102,7 @@ Ajoutez ici toute information pertinente (migration de base, impact infra, rollb
 
 ## Séance 3 - Linters et automatisation
 
-### Exercice #1 - Installation et configuration des linters
+### Transparent 8
 
 Mes manipulations :
 
