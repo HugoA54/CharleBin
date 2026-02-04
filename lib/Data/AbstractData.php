@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PrivateBin
  *
@@ -25,7 +26,7 @@ abstract class AbstractData
      * @access protected
      * @var    array
      */
-    protected $_last_cache = array();
+    protected $_last_cache = [];
 
     /**
      * Create a paste.

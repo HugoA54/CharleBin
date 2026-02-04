@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PrivateBin
  *
@@ -49,7 +50,7 @@ class Paste extends AbstractModel
         }
 
         // check if non-expired burn after reading paste needs to be deleted
-        if ((array_key_exists('adata', $data) && $data['adata'][3] === 1) 
+        if ((array_key_exists('adata', $data) && $data['adata'][3] === 1)
             || (array_key_exists('burnafterreading', $data['meta']) && $data['meta']['burnafterreading'])
         ) {
             $this->delete();
@@ -239,9 +240,9 @@ class Paste extends AbstractModel
 
         // discussion requested, but disabled in config or burn after reading requested as well, or invalid integer
         if (($data['adata'][2] === 1 && ( // open discussion flag
-            !$this->_conf->getKey('discussion') 
+            !$this->_conf->getKey('discussion')
             || $data['adata'][3] === 1  // burn after reading flag
-            )) 
+        ))
             || ($data['adata'][2] !== 0 && $data['adata'][2] !== 1)
         ) {
             throw new Exception('Invalid data.', 74);

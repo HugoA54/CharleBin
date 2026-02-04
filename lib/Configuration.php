@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PrivateBin
  *
@@ -34,8 +35,8 @@ class Configuration
      *
      * @var array
      */
-    private static $_defaults = array(
-        'main' => array(
+    private static $_defaults = [
+        'main' => [
             'name'                     => 'CharleBin',
             'basepath'                 => '',
             'discussion'               => true,
@@ -58,11 +59,11 @@ class Configuration
             'zerobincompatibility'     => false,
             'httpwarning'              => true,
             'compression'              => 'zlib',
-        ),
-        'expire' => array(
+        ],
+        'expire' => [
             'default' => '1month',
-        ),
-        'expire_options' => array(
+        ],
+        'expire_options' => [
             '5min'   => 300,
             '10min'  => 600,
             '30min' => 1800,
@@ -72,33 +73,33 @@ class Configuration
             '1month' => 2592000,
             '1year'  => 31536000,
             'never'  => 0,
-        ),
-        'formatter_options' => array(
+        ],
+        'formatter_options' => [
             'plaintext'          => 'Plain Text',
             'syntaxhighlighting' => 'Source Code',
             'markdown'           => 'Markdown',
-        ),
-        'traffic' => array(
+        ],
+        'traffic' => [
             'limit'     => 10,
             'header'    => '',
             'exempted'  => '',
             'creators'  => '',
-        ),
-        'purge' => array(
+        ],
+        'purge' => [
             'limit'     => 300,
             'batchsize' => 10,
-        ),
-        'model' => array(
+        ],
+        'model' => [
             'class' => 'Filesystem',
-        ),
-        'model_options' => array(
+        ],
+        'model_options' => [
             'dir' => 'data',
-        ),
-        'yourls' => array(
+        ],
+        'yourls' => [
             'signature' => '',
             'apiurl'    => '',
-        ),
-    );
+        ],
+    ];
 
     /**
      * Parse configuration file and ensure default configuration values are present
@@ -107,8 +108,8 @@ class Configuration
      */
     public function __construct()
     {
-        $basePaths  = array();
-        $config     = array();
+        $basePaths  = [];
+        $config     = [];
         $configPath = getenv('CONFIG_PATH');
         if ($configPath !== false && !empty($configPath)) {
             $basePaths[] = $configPath;
@@ -118,7 +119,7 @@ class Configuration
             $configFile = $basePath . DIRECTORY_SEPARATOR . 'conf.php';
             if (is_readable($configFile)) {
                 $config = parse_ini_file($configFile, true);
-                foreach (array('main', 'model', 'model_options') as $section) {
+                foreach (['main', 'model', 'model_options'] as $section) {
                     if (!array_key_exists($section, $config)) {
                         throw new Exception(I18n::_('PrivateBin requires configuration section [%s] to be present in configuration file.', $section), 2);
                     }
@@ -140,32 +141,32 @@ class Configuration
             // provide different defaults for database model
             elseif ($section == 'model_options' && in_array(
                 $this->_configuration['model']['class'],
-                array('Database', 'privatebin_db', 'zerobin_db')
+                ['Database', 'privatebin_db', 'zerobin_db']
             )
             ) {
-                $values = array(
+                $values = [
                     'dsn' => 'sqlite:' . PATH . 'data' . DIRECTORY_SEPARATOR . 'db.sq3',
                     'tbl' => null,
                     'usr' => null,
                     'pwd' => null,
-                    'opt' => array(PDO::ATTR_PERSISTENT => true),
-                );
+                    'opt' => [PDO::ATTR_PERSISTENT => true],
+                ];
             } elseif ($section == 'model_options' && in_array(
                 $this->_configuration['model']['class'],
-                array('GoogleCloudStorage')
+                ['GoogleCloudStorage']
             )
             ) {
-                $values = array(
+                $values = [
                     'bucket'     => getenv('PRIVATEBIN_GCS_BUCKET') ? getenv('PRIVATEBIN_GCS_BUCKET') : null,
                     'prefix'     => 'pastes',
                     'uniformacl' => false,
-                );
+                ];
             } elseif ($section == 'model_options' && in_array(
                 $this->_configuration['model']['class'],
-                array('S3Storage')
+                ['S3Storage']
             )
             ) {
-                $values = array(
+                $values = [
                     'region'                  => null,
                     'version'                 => null,
                     'endpoint'                => null,
@@ -174,12 +175,12 @@ class Configuration
                     'use_path_style_endpoint' => null,
                     'bucket'                  => null,
                     'prefix'                  => '',
-                );
+                ];
             }
 
             // "*_options" sections don't require all defaults to be set
-            if ($section !== 'model_options' 
-                && ($from = strlen($section) - strlen($opts)) >= 0 
+            if ($section !== 'model_options'
+                && ($from = strlen($section) - strlen($opts)) >= 0
                 && strpos($section, $opts, $from) !== false
             ) {
                 if (is_int(current($values))) {
@@ -199,9 +200,9 @@ class Configuration
                             $result = $config[$section][$key];
                         } elseif (is_bool($val)) {
                             $val = strtolower($config[$section][$key]);
-                            if (in_array($val, array('true', 'yes', 'on'))) {
+                            if (in_array($val, ['true', 'yes', 'on'])) {
                                 $result = true;
-                            } elseif (in_array($val, array('false', 'no', 'off'))) {
+                            } elseif (in_array($val, ['false', 'no', 'off'])) {
                                 $result = false;
                             } else {
                                 $result = (bool) $config[$section][$key];
@@ -219,13 +220,14 @@ class Configuration
 
         // support for old config file format, before the fork was renamed and PSR-4 introduced
         $this->_configuration['model']['class'] = str_replace(
-            'zerobin_', 'privatebin_',
+            'zerobin_',
+            'privatebin_',
             $this->_configuration['model']['class']
         );
 
         $this->_configuration['model']['class'] = str_replace(
-            array('privatebin_data', 'privatebin_db'),
-            array('Filesystem', 'Database'),
+            ['privatebin_data', 'privatebin_db'],
+            ['Filesystem', 'Database'],
             $this->_configuration['model']['class']
         );
 
@@ -235,7 +237,7 @@ class Configuration
         }
 
         // ensure the basepath ends in a slash, if one is set
-        if (strlen($this->_configuration['main']['basepath']) 
+        if (strlen($this->_configuration['main']['basepath'])
             && substr_compare($this->_configuration['main']['basepath'], '/', -1) !== 0
         ) {
             $this->_configuration['main']['basepath'] .= '/';

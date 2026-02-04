@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PrivateBin
  *
@@ -169,14 +170,14 @@ class Comment extends AbstractModel
                 $pngdata   = $identicon->getImageDataUri($hmac, 16);
             } elseif ($icon == 'jdenticon') {
                 $jdenticon = new Jdenticon(
-                    array(
+                    [
                     'hash'  => $hmac,
                     'size'  => 16,
-                    'style' => array(
+                    'style' => [
                         'backgroundColor'   => '#fff0', // fully transparent, for dark mode
                         'padding'           => 0,
-                    ),
-                    )
+                    ],
+                    ]
                 );
                 $pngdata   = $jdenticon->getImageDataUri('png');
             } elseif ($icon == 'vizhash') {
@@ -187,7 +188,7 @@ class Comment extends AbstractModel
             }
             if ($pngdata != '') {
                 if (!array_key_exists('meta', $data)) {
-                    $data['meta'] = array();
+                    $data['meta'] = [];
                 }
                 $data['meta']['icon'] = $pngdata;
             }

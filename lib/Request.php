@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PrivateBin
  *
@@ -26,21 +27,21 @@ class Request
      *
      * @const string
      */
-    const MIME_JSON = 'application/json';
+    public const MIME_JSON = 'application/json';
 
     /**
      * MIME type for HTML
      *
      * @const string
      */
-    const MIME_HTML = 'text/html';
+    public const MIME_HTML = 'text/html';
 
     /**
      * MIME type for XHTML
      *
      * @const string
      */
-    const MIME_XHTML = 'application/xhtml+xml';
+    public const MIME_XHTML = 'application/xhtml+xml';
 
     /**
      * Input stream to use for PUT parameter parsing
@@ -64,7 +65,7 @@ class Request
      * @access private
      * @var    array
      */
-    private $_params = array();
+    private $_params = [];
 
     /**
      * If we are in a JSON API context
@@ -107,26 +108,26 @@ class Request
 
         // parse parameters, depending on request type
         switch (array_key_exists('REQUEST_METHOD', $_SERVER) ? $_SERVER['REQUEST_METHOD'] : 'GET') {
-        case 'DELETE':
-        case 'PUT':
-        case 'POST':
-            // it might be a creation or a deletion, the latter is detected below
-            $this->_operation = 'create';
-            try {
-                $this->_params = Json::decode(
-                    file_get_contents(self::$_inputStream)
-                );
-            } catch (Exception $e) {
-                // ignore error, $this->_params will remain empty
-            }
-            break;
-        default:
-            $this->_params = $_GET;
+            case 'DELETE':
+            case 'PUT':
+            case 'POST':
+                // it might be a creation or a deletion, the latter is detected below
+                $this->_operation = 'create';
+                try {
+                    $this->_params = Json::decode(
+                        file_get_contents(self::$_inputStream)
+                    );
+                } catch (Exception $e) {
+                    // ignore error, $this->_params will remain empty
+                }
+                break;
+            default:
+                $this->_params = $_GET;
         }
-        if (!array_key_exists('pasteid', $this->_params) 
-            && !array_key_exists('jsonld', $this->_params) 
-            && !array_key_exists('link', $this->_params) 
-            && array_key_exists('QUERY_STRING', $_SERVER) 
+        if (!array_key_exists('pasteid', $this->_params)
+            && !array_key_exists('jsonld', $this->_params)
+            && !array_key_exists('link', $this->_params)
+            && array_key_exists('QUERY_STRING', $_SERVER)
             && !empty($_SERVER['QUERY_STRING'])
         ) {
             $this->_params['pasteid'] = $this->getPasteId();
@@ -167,10 +168,10 @@ class Request
      */
     public function getData()
     {
-        $data = array(
+        $data = [
             'adata' => $this->getParam('adata'),
-        );
-        $required_keys = array('v', 'ct');
+        ];
+        $required_keys = ['v', 'ct'];
         $meta          = $this->getParam('meta');
         if (empty($meta)) {
             $required_keys[] = 'pasteid';
@@ -262,24 +263,25 @@ class Request
         $acceptHeader    = $hasAcceptHeader ? $_SERVER['HTTP_ACCEPT'] : '';
 
         // simple cases
-        if ((array_key_exists('HTTP_X_REQUESTED_WITH', $_SERVER) 
-            && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'JSONHttpRequest') 
-            || ($hasAcceptHeader 
-            && strpos($acceptHeader, self::MIME_JSON) !== false 
-            && strpos($acceptHeader, self::MIME_HTML) === false 
+        if ((array_key_exists('HTTP_X_REQUESTED_WITH', $_SERVER)
+            && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'JSONHttpRequest')
+            || ($hasAcceptHeader
+            && strpos($acceptHeader, self::MIME_JSON) !== false
+            && strpos($acceptHeader, self::MIME_HTML) === false
             && strpos($acceptHeader, self::MIME_XHTML) === false)
         ) {
             return true;
         }
 
         // advanced case: media type negotiation
-        $mediaTypes = array();
+        $mediaTypes = [];
         if ($hasAcceptHeader) {
             $mediaTypeRanges = explode(',', trim($acceptHeader));
             foreach ($mediaTypeRanges as $mediaTypeRange) {
                 if (preg_match(
                     '#(\*/\*|[a-z\-]+/[a-z\-+*]+(?:\s*;\s*[^q]\S*)*)(?:\s*;\s*q\s*=\s*(0(?:\.\d{0,3})|1(?:\.0{0,3})))?#',
-                    trim($mediaTypeRange), $match
+                    trim($mediaTypeRange),
+                    $match
                 )
                 ) {
                     if (!isset($match[2])) {
@@ -288,7 +290,7 @@ class Request
                         $match[2] = (string) floatval($match[2]);
                     }
                     if (!isset($mediaTypes[$match[2]])) {
-                        $mediaTypes[$match[2]] = array();
+                        $mediaTypes[$match[2]] = [];
                     }
                     $mediaTypes[$match[2]][] = strtolower($match[1]);
                 }
@@ -299,7 +301,7 @@ class Request
                     continue;
                 }
                 foreach ($acceptedValues as $acceptedValue) {
-                    if (strpos($acceptedValue, self::MIME_HTML) === 0 
+                    if (strpos($acceptedValue, self::MIME_HTML) === 0
                         || strpos($acceptedValue, self::MIME_XHTML) === 0
                     ) {
                         return false;

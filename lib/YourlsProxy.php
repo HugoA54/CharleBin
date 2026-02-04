@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PrivateBin
  *
@@ -60,21 +61,23 @@ class YourlsProxy
         }
 
         $data = file_get_contents(
-            $yourls_api_url, false, stream_context_create(
-                array(
-                    'http' => array(
+            $yourls_api_url,
+            false,
+            stream_context_create(
+                [
+                    'http' => [
                         'method'  => 'POST',
                         'header'  => "Content-Type: application/x-www-form-urlencoded\r\n",
                         'content' => http_build_query(
-                            array(
+                            [
                                 'signature' => $conf->getKey('signature', 'yourls'),
                                 'format'    => 'json',
                                 'action'    => 'shorturl',
                                 'url'       => $link,
-                            )
+                            ]
                         ),
-                    ),
-                )
+                    ],
+                ]
             )
         );
         try {
@@ -85,9 +88,9 @@ class YourlsProxy
             return;
         }
 
-        if (!is_null($data) 
-            && array_key_exists('statusCode', $data) 
-            && $data['statusCode'] == 200 
+        if (!is_null($data)
+            && array_key_exists('statusCode', $data)
+            && $data['statusCode'] == 200
             && array_key_exists('shorturl', $data)
         ) {
             $this->_url = $data['shorturl'];

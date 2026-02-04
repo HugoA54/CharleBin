@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PrivateBin
  *
@@ -28,21 +29,21 @@ class Controller
      *
      * @const string
      */
-    const VERSION = '1.5.1';
+    public const VERSION = '1.5.1';
 
     /**
      * minimal required PHP version
      *
      * @const string
      */
-    const MIN_PHP_VERSION = '5.6.0';
+    public const MIN_PHP_VERSION = '5.6.0';
 
     /**
      * show the same error message if the paste expired or does not exist
      *
      * @const string
      */
-    const GENERIC_ERROR = 'Paste does not exist, has expired or has been deleted.';
+    public const GENERIC_ERROR = 'Paste does not exist, has expired or has been deleted.';
 
     /**
      * configuration
@@ -121,24 +122,24 @@ class Controller
         $this->_init();
 
         switch ($this->_request->getOperation()) {
-        case 'create':
-            $this->_create();
-            break;
-        case 'delete':
-            $this->_delete(
-                $this->_request->getParam('pasteid'),
-                $this->_request->getParam('deletetoken')
-            );
-            break;
-        case 'read':
-            $this->_read($this->_request->getParam('pasteid'));
-            break;
-        case 'jsonld':
-            $this->_jsonld($this->_request->getParam('jsonld'));
-            return;
-        case 'yourlsproxy':
-            $this->_yourlsproxy($this->_request->getParam('link'));
-            break;
+            case 'create':
+                $this->_create();
+                break;
+            case 'delete':
+                $this->_delete(
+                    $this->_request->getParam('pasteid'),
+                    $this->_request->getParam('deletetoken')
+                );
+                break;
+            case 'read':
+                $this->_read($this->_request->getParam('pasteid'));
+                break;
+            case 'jsonld':
+                $this->_jsonld($this->_request->getParam('jsonld'));
+                return;
+            case 'yourlsproxy':
+                $this->_yourlsproxy($this->_request->getParam('link'));
+                break;
         }
 
         // output JSON or HTML
@@ -161,9 +162,9 @@ class Controller
      */
     private function _init()
     {
-        $this->_conf    = new Configuration;
+        $this->_conf    = new Configuration();
         $this->_model   = new Model($this->_conf);
-        $this->_request = new Request;
+        $this->_request = new Request();
         $this->_urlBase = $this->_request->getRequestUri();
 
         // set default language
@@ -258,7 +259,7 @@ class Controller
             } catch (Exception $e) {
                 return $this->_return_message(1, $e->getMessage());
             }
-            $this->_return_message(0, $paste->getId(), array('deletetoken' => $paste->getDeleteToken()));
+            $this->_return_message(0, $paste->getId(), ['deletetoken' => $paste->getDeleteToken()]);
         }
     }
 
@@ -355,7 +356,7 @@ class Controller
         header('X-XSS-Protection: 1; mode=block');
 
         // label all the expiration options
-        $expire = array();
+        $expire = [];
         foreach ($this->_conf->getSection('expire_options') as $time => $seconds) {
             $expire[$time] = ($seconds == 0) ? I18n::_(ucfirst($time)) : Filter::formatHumanReadableTime($time);
         }
@@ -372,15 +373,15 @@ class Controller
 
         // strip policies that are unsupported in meta tag
         $metacspheader = str_replace(
-            array(
+            [
                 'frame-ancestors \'none\'; ',
                 '; sandbox allow-same-origin allow-scripts allow-forms allow-popups allow-modals allow-downloads',
-            ),
+            ],
             '',
             $this->_conf->getKey('cspheader')
         );
 
-        $page = new View;
+        $page = new View();
         $page->assign('CSPHEADER', $metacspheader);
         $page->assign('ERROR', I18n::_($this->_error));
         $page->assign('NAME', $this->_conf->getKey('name'));
@@ -425,7 +426,7 @@ class Controller
      */
     private function _jsonld($type)
     {
-        if ($type !== 'paste' && $type !== 'comment' 
+        if ($type !== 'paste' && $type !== 'comment'
             && $type !== 'pastemeta' && $type !== 'commentmeta'
         ) {
             $type = '';
@@ -470,9 +471,9 @@ class Controller
      * @param  string $message
      * @param  array  $other
      */
-    private function _return_message($status, $message, $other = array())
+    private function _return_message($status, $message, $other = [])
     {
-        $result = array('status' => $status);
+        $result = ['status' => $status];
         if ($status) {
             $result['message'] = I18n::_($message);
         } else {
