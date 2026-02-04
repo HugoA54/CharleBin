@@ -98,3 +98,195 @@ Référencez les issues liées
 ## Notes supplémentaires
 Ajoutez ici toute information pertinente (migration de base, impact infra, rollback, etc.).
 ```
+
+
+## Séance 3 - Linters et automatisation
+
+### Exercice #1 - Installation et configuration des linters
+
+Mes manipulations :
+
+J'ai testé PHP Lint sur un fichier :
+
+```bash
+php -l lib/Configuration.php
+```
+
+Pour tester tous les fichiers PHP du projet :
+
+```bash
+find . -type f -name '*.php' -exec php -l {} \;
+```
+
+**2. Installation de PHP Code Sniffer**
+
+J'ai d'abord installé l'extension PHP nécessaire :
+
+```bash
+sudo apt install php-xmlwriter
+```
+
+Puis j'ai installé PHP Code Sniffer via Composer :
+
+```bash
+composer require --dev "squizlabs/php_codesniffer=3.*"
+```
+
+J'ai testé l'outil sur le projet :
+
+```bash
+./vendor/bin/phpcs --extensions=php ./lib/
+```
+
+**3. Installation de PHP Mess Detector**
+
+```bash
+composer require --dev "phpmd/phpmd=@stable"
+```
+
+J'ai testé PHPMD avec différentes règles :
+
+```bash
+./vendor/bin/phpmd ./lib ansi codesize,unusedcode,naming
+```
+
+**4. Configuration des linters**
+
+J'ai créé un fichier de configuration pour PHP Code Sniffer si nécessaire, et j'ai ajusté les règles selon mes besoins (par exemple, ignorer certains warnings ou ajuster les seuils de complexité).
+
+**5. Création d'une target `make lint` dans le Makefile**
+
+J'ai ajouté cette target dans le `Makefile` :
+
+```makefile
+lint:
+        $ find . -type f -name '*.php' -exec php -l {} \;
+        ./vendor/bin/phpcs --extensions=php ./lib/
+        ./vendor/bin/phpmd ./lib ansi codesize,unusedcode,naming
+```
+
+J'ai testé la commande :
+
+```bash
+make lint
+```
+
+**6. Correction de 5+ erreurs**
+
+J'ai corrigé au moins 5 erreurs :
+
+
+
+**Ligne 26** : Doc comment short description must start with a capital letter
+
+**AVANT :**
+```php
+/**
+ * parsed configuration
+ */
+```
+
+**APRÈS :**
+```php
+/**
+ * Parsed configuration
+ */
+```
+
+
+
+---
+
+**Ligne 33** : Doc comment short description must start with a capital letter
+
+**AVANT :**
+```php
+/**
+ * default configuration
+ *
+ * @var array
+ */
+```
+
+**APRÈS :**
+```php
+/**
+ * Default configuration
+ *
+ * @var array
+ */
+```
+
+---
+
+
+**Ligne 104** : Doc comment short description must start with a capital letter
+
+**AVANT :**
+```php
+/**
+ * parse configuration file and ensure default configuration values are present
+ *
+ * @throws Exception
+ */
+```
+
+**APRÈS :**
+```php
+/**
+ * Parse configuration file and ensure default configuration values are present
+ *
+ * @throws Exception
+ */
+```
+
+---
+
+
+
+**Ligne 246** : Doc comment short description must start with a capital letter
+
+**AVANT :**
+```php
+/**
+ * get configuration as array
+ *
+ * @return array
+ */
+```
+
+**APRÈS :**
+```php
+/**
+ * Get configuration as array
+ *
+ * @return array
+ */
+```
+
+
+---
+
+**Ligne 256** : Doc comment short description must start with a capital letter
+
+**AVANT :**
+```php
+/**
+ * get default configuration as array
+ *
+ * @return array
+ */
+```
+
+**APRÈS :**
+```php
+/**
+ * Get default configuration as array
+ *
+ * @return array
+ */
+```
+
+
+
+

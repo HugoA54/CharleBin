@@ -23,14 +23,14 @@ use PDO;
 class Configuration
 {
     /**
-     * parsed configuration
+     * Parsed configuration
      *
      * @var array
      */
     private $_configuration;
 
     /**
-     * default configuration
+     * Default configuration
      *
      * @var array
      */
@@ -101,7 +101,7 @@ class Configuration
     );
 
     /**
-     * parse configuration file and ensure default configuration values are present
+     * Parse configuration file and ensure default configuration values are present
      *
      * @throws Exception
      */
@@ -243,7 +243,7 @@ class Configuration
     }
 
     /**
-     * get configuration as array
+     * Get configuration as array
      *
      * @return array
      */
@@ -253,7 +253,7 @@ class Configuration
     }
 
     /**
-     * get default configuration as array
+     * Get default configuration as array
      *
      * @return array
      */
