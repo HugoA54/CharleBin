@@ -290,3 +290,99 @@ J'ai corrigé au moins 5 erreurs :
 
 
 
+
+
+### Vérification des corrections
+
+```bash
+./vendor/bin/phpcs lib/Configuration.php | grep "FOUND"
+```
+
+**Résultat** : Le nombre d'erreurs est passé de 26 à 21
+
+
+
+## Exercice #2 - Pre-commit hook automatique
+
+### 1. Installation de PHP CS Fixer
+
+```bash
+composer require --dev "friendsofphp/php-cs-fixer"
+```
+
+### 2. Création du fichier de configuration `.php-cs-fixer.php`
+
+**Contenu** :
+```php
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->in(__DIR__)
+    ->exclude('vendor')
+    ->name('*.php');
+
+$config = new PhpCsFixer\Config();
+return $config
+    ->setRules([
+        '@PSR12' => true,
+        'array_syntax' => ['syntax' => 'short'],
+    ])
+    ->setFinder($finder);
+```
+
+### 3. Création du pre-commit hook
+
+**Fichier** : `.git/hooks/pre-commit`
+
+**Contenu** :
+```bash
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+CHANGED_FILES=$(git diff --name-only --cached --diff-filter=ACMR | grep '\.php$' || true)
+
+function join_by {
+  local d=${1-} f=${2-}
+  if shift 2; then
+    printf %s "$f" "${@/#/$d}"
+  fi
+}
+
+if [[ -n "$CHANGED_FILES" ]]
+then
+  ./vendor/bin/php-cs-fixer fix --config=.php-cs-fixer.php $CHANGED_FILES
+    git add $CHANGED_FILES
+  FILES_FOR_PHPMD=$(join_by , $CHANGED_FILES)
+  if ! ./vendor/bin/phpmd $FILES_FOR_PHPMD ansi codesize,unusedcode,naming; then
+    exit 1
+  fi
+  echo "PHPMD passed!"
+fi
+```
+
+
+### 4. Test du pre-commit hook
+
+```bash
+# Je modifie le fichier
+echo "// Test hook" >> lib/Configuration.php
+
+# Et je le commit
+git add lib/Configuration.php
+git commit -m "test hook"
+```
+
+**Résultat** :
+- PHP CS Fixer a corrigé automatiquement le code
+- Les fichiers corrigés ont été ajoutés au staging
+- PHPMD a détecté 67 violations et bloqué le commit
+
+### 5. Bypass du pre-commit hook
+
+**Question** : Est-il possible de commit en ignorant le pre-commit hook ?
+
+**Réponse** : Oui avec la commande  :
+```bash
+git commit --no-verify -m "Message de commit"
+```
