@@ -124,7 +124,8 @@ class Request
             default:
                 $this->_params = $_GET;
         }
-        if (!array_key_exists('pasteid', $this->_params)
+        if (
+            !array_key_exists('pasteid', $this->_params)
             && !array_key_exists('jsonld', $this->_params)
             && !array_key_exists('link', $this->_params)
             && array_key_exists('QUERY_STRING', $_SERVER)
@@ -263,7 +264,8 @@ class Request
         $acceptHeader    = $hasAcceptHeader ? $_SERVER['HTTP_ACCEPT'] : '';
 
         // simple cases
-        if ((array_key_exists('HTTP_X_REQUESTED_WITH', $_SERVER)
+        if (
+            (array_key_exists('HTTP_X_REQUESTED_WITH', $_SERVER)
             && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'JSONHttpRequest')
             || ($hasAcceptHeader
             && strpos($acceptHeader, self::MIME_JSON) !== false
@@ -278,11 +280,12 @@ class Request
         if ($hasAcceptHeader) {
             $mediaTypeRanges = explode(',', trim($acceptHeader));
             foreach ($mediaTypeRanges as $mediaTypeRange) {
-                if (preg_match(
-                    '#(\*/\*|[a-z\-]+/[a-z\-+*]+(?:\s*;\s*[^q]\S*)*)(?:\s*;\s*q\s*=\s*(0(?:\.\d{0,3})|1(?:\.0{0,3})))?#',
-                    trim($mediaTypeRange),
-                    $match
-                )
+                if (
+                    preg_match(
+                        '#(\*/\*|[a-z\-]+/[a-z\-+*]+(?:\s*;\s*[^q]\S*)*)(?:\s*;\s*q\s*=\s*(0(?:\.\d{0,3})|1(?:\.0{0,3})))?#',
+                        trim($mediaTypeRange),
+                        $match
+                    )
                 ) {
                     if (!isset($match[2])) {
                         $match[2] = '1.0';
@@ -301,7 +304,8 @@ class Request
                     continue;
                 }
                 foreach ($acceptedValues as $acceptedValue) {
-                    if (strpos($acceptedValue, self::MIME_HTML) === 0
+                    if (
+                        strpos($acceptedValue, self::MIME_HTML) === 0
                         || strpos($acceptedValue, self::MIME_XHTML) === 0
                     ) {
                         return false;

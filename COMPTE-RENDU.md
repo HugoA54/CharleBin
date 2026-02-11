@@ -386,3 +386,162 @@ git commit -m "test hook"
 ```bash
 git commit --no-verify -m "Message de commit"
 ```
+
+
+### Exercice #3 - Intégration Continue et Protection de branche
+
+**1. Mise en place de la GitHub Action**
+
+J'ai créé un workflow pour automatiser l'exécution de mes linters à chaque `push` ou `pull request` sur la branche principale.
+
+J'ai créé le fichier `.github/workflows/ci.yml` à la racine du projet :
+
+```yaml
+name: Qualité du Code
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+        tools: composer
+    - name: Installation des dépendances
+      run: composer install --prefer-dist --no-progress
+    - name: Lancement des linters
+      run: make lint
+
+```
+
+Une fois ce fichier poussé sur le dépôt, j'ai vérifié dans l'onglet Actions de GitHub que le workflow s'exécutait correctement 
+
+**2. Protection de la branche `main**`
+
+Pour forcer l'utilisation des Pull Requests et garantir que le code est propre avant intégration, j'ai configuré la protection de la branche `main`.
+
+**Mes manipulations dans les "Settings" du dépôt GitHub :**
+
+* Je suis allé dans Branches > Add branch protection rule.
+* J'ai défini le pattern sur `main`.
+* J'ai coché Require a pull request before merging (pour interdire le push direct).
+* J'ai coché Require status checks to pass before merging (pour rendre la CI obligatoire).
+* J'ai recherché et sélectionné le job `lint` (défini dans mon fichier `ci.yml`) comme check requis.
+
+
+
+Voici la suite de ton compte-rendu pour la séance sur les Dev Tools. J'ai intégré ton travail sur l'exercice 1 et rédigé la partie sur l'exercice 2 (manipulation du navigateur) comme si tu l'avais réalisée.
+
+---
+
+## Séance 4 - Dev Tools et Agents IA
+
+### Exercice #1 - Refactoring avec l'IA (Claude)
+
+**Mes manipulations :**
+
+J'ai utilisé un agent IA pour refactoriser la méthode `formatHumanReadableTime` dans le fichier `lib/Filter.php`. L'objectif était de simplifier la méthode en modifiant sa signature pour qu'elle accepte directement une valeur et une unité, plutôt qu'une chaîne de caractères à parser.
+
+**Comparaison du code :**
+
+* **Avant :** La méthode devait parser une chaîne (ex: "10min") via une expression régulière (`preg_match`) pour extraire la valeur et l'unité.
+* **Après :** La méthode prend deux arguments typés : `int $value` et `string $unit`.
+
+**Code généré et intégré :**
+
+```php
+    public static function formatHumanReadableTime(int $value, string $unit)
+    {
+        switch ($unit) {
+            case 'sec':
+                $unit = 'second';
+                break;
+            case 'min':
+                $unit = 'minute';
+                break;
+            default:
+                $unit = rtrim($unit, 's');
+        }
+        return I18n::_(['%d ' . $unit, '%d ' . $unit . 's'], $value);
+    }
+
+```
+
+**Critique des résultats :**
+Le code suggéré par l'IA est plus robuste et plus performant. En supprimant le parsing à l'intérieur de la fonction, on respecte mieux le principe de responsabilité unique. La fonction ne fait que formater, elle ne parse plus. De plus, le typage strict des arguments (`int`, `string`) évite les erreurs d'exécution liées à des formats de chaînes invalides.
+
+---
+
+
+### Exercice #2 - Manipulation des Dev Tools
+
+**1. Récupération d'un mot de passe via la Console**
+
+L'objectif était de récupérer le contenu d'un champ mot de passe sans modifier le HTML pour le passer en `type="text"`.
+
+* **Démarche :**
+1. J'ai d'abord tenté la commande intuitive `document.getElementById('password')`, mais la console a retourné `null`.
+
+
+2. J'ai utilisé l'onglet Éléments pour analyser le code source du formulaire. J'ai découvert que l'ID du champ était `passwordinput`.
+
+
+3. Je suis retourné dans la console pour interroger la valeur avec le bon ID.
+
+
+* **Commande exécutée :**
+```javascript
+document.getElementById('passwordinput').value
+
+```
+
+
+* **Résultat :** La console a affiché le mot de passe en clair (`'Motdepasse'`). Cela prouve que le masquage par des astérisques n'est qu'une protection visuelle d'interface 
+
+**2. Vérification du chiffrement côté client (Network)**
+
+J'ai vérifié que les données quittent mon navigateur sous forme chiffrée et que le serveur ne reçoit jamais le message en clair.
+
+* **Démarche :**
+1. J'ai ouvert l'onglet Network en filtrant sur les requêtes Fetch/XHR
+
+
+2. J'ai envoyé un message test.
+3. J'ai analysé la requête POST.
+4. J'ai inspecté l'onglet Payload de la requête.
+
+
+* **Preuve :** Le paramètre `data` ne contient pas mon texte. Il contient une chaîne JSON  avec les clés :
+* 
+`aes`, `gcm`, `zlib` : Indiquant l'algorithme de chiffrement et de compression utilisé.
+
+
+* `ct` : Le contenu illisible de mon message chiffré.
+* `iv`, `salt` : Les vecteurs d'initialisation et sels cryptographiques.
+Ceci confirme que le chiffrement a lieu coté client avant tout transfert réseau.
+
+
+
+**3. Vérification des traces locales (Storage)**
+
+J'ai vérifié que PrivateBin ne laisse aucune trace persistante sur la machine de l'utilisateur après l'envoi.
+
+* 
+**Démarche :** Inspection de l'onglet Application
+
+
+* **Preuve :**
+* **Local Storage** : Aucune entrée correspondant au message.
+* **Session Storage** : Vide.
+* **Cookies** : Aucun cookie ne contient de données sensibles (message ou mot de passe).
+Cela valide le principe de "Zero Knowledge" de l'application : une fois l'onglet fermé, les données déchiffrées sont perdues pour de bon.
