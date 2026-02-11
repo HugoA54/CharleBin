@@ -61,12 +61,13 @@ class Comment extends AbstractModel
         $this->_data['meta']['created'] = time();
 
         // store comment
-        if ($this->_store->createComment(
-            $pasteid,
-            $this->getParentId(),
-            $this->getId(),
-            $this->_data
-        ) === false
+        if (
+            $this->_store->createComment(
+                $pasteid,
+                $this->getParentId(),
+                $this->getId(),
+                $this->_data
+            ) === false
         ) {
             throw new Exception('Error saving comment. Sorry.', 70);
         }

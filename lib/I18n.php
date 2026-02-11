@@ -27,7 +27,7 @@ class I18n
      * @static
      * @var    string
      */
-    protected static $_language = 'en';
+    protected static $_language = "en";
 
     /**
      * language fallback
@@ -36,7 +36,7 @@ class I18n
      * @static
      * @var    string
      */
-    protected static $_languageFallback = 'en';
+    protected static $_languageFallback = "en";
 
     /**
      * language labels
@@ -63,7 +63,7 @@ class I18n
      * @static
      * @var    string
      */
-    protected static $_path = '';
+    protected static $_path = "";
 
     /**
      * translation cache
@@ -85,7 +85,10 @@ class I18n
      */
     public static function _($messageId)
     {
-        return forward_static_call_array('PrivateBin\I18n::translate', func_get_args());
+        return forward_static_call_array(
+            "PrivateBin\I18n::translate",
+            func_get_args(),
+        );
     }
 
     /**
@@ -115,8 +118,8 @@ class I18n
         $args = func_get_args();
         if (is_array(self::$_translations[$messageId])) {
             $number = (int) $args[1];
-            $key    = self::_getPluralForm($number);
-            $max    = count(self::$_translations[$messageId]) - 1;
+            $key = self::_getPluralForm($number);
+            $max = count(self::$_translations[$messageId]) - 1;
             if ($key > $max) {
                 $key = $max;
             }
@@ -130,12 +133,15 @@ class I18n
         $argsCount = count($args);
         if ($argsCount > 1) {
             for ($i = 0; $i < $argsCount; ++$i) {
-                if (($i > 0 && !is_int($args[$i])) || strpos($args[0], '<a') === false) {
+                if (
+                    ($i > 0 && !is_int($args[$i])) ||
+                    strpos($args[0], "<a") === false
+                ) {
                     $args[$i] = self::encode($args[$i]);
                 }
             }
         }
-        return call_user_func_array('sprintf', $args);
+        return call_user_func_array("sprintf", $args);
     }
 
     /**
@@ -148,7 +154,12 @@ class I18n
      */
     public static function encode($string)
     {
-        return htmlspecialchars($string, ENT_QUOTES | ENT_HTML5 | ENT_DISALLOWED, 'UTF-8', false);
+        return htmlspecialchars(
+            $string,
+            ENT_QUOTES | ENT_HTML5 | ENT_DISALLOWED,
+            "UTF-8",
+            false,
+        );
     }
 
     /**
@@ -164,24 +175,28 @@ class I18n
         $availableLanguages = self::getAvailableLanguages();
 
         // check if the lang cookie was set and that language exists
-        if (array_key_exists('lang', $_COOKIE)
-            && ($key = array_search($_COOKIE['lang'], $availableLanguages)) !== false
+        if (
+            array_key_exists("lang", $_COOKIE) &&
+            ($key = array_search($_COOKIE["lang"], $availableLanguages)) !==
+                false
         ) {
             $match = $availableLanguages[$key];
-        }
-        // find a translation file matching the browsers language preferences
-        else {
+        } else {
+            // find a translation file matching the browsers language preferences
             $match = self::_getMatchingLanguage(
                 self::getBrowserLanguages(),
-                $availableLanguages
+                $availableLanguages,
             );
         }
 
         // load translations
-        self::$_language     = $match;
-        self::$_translations = ($match == 'en') ? [] : Json::decode(
-            file_get_contents(self::_getPath($match . '.json'))
-        );
+        self::$_language = $match;
+        self::$_translations =
+            $match == "en"
+                ? []
+                : Json::decode(
+                    file_get_contents(self::_getPath($match . ".json")),
+                );
     }
 
     /**
@@ -216,17 +231,21 @@ class I18n
     public static function getBrowserLanguages()
     {
         $languages = [];
-        if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER)) {
-            $languageRanges = explode(',', trim($_SERVER['HTTP_ACCEPT_LANGUAGE']));
+        if (array_key_exists("HTTP_ACCEPT_LANGUAGE", $_SERVER)) {
+            $languageRanges = explode(
+                ",",
+                trim($_SERVER["HTTP_ACCEPT_LANGUAGE"]),
+            );
             foreach ($languageRanges as $languageRange) {
-                if (preg_match(
-                    '/(\*|[a-zA-Z0-9]{1,8}(?:-[a-zA-Z0-9]{1,8})*)(?:\s*;\s*q\s*=\s*(0(?:\.\d{0,3})|1(?:\.0{0,3})))?/',
-                    trim($languageRange),
-                    $match
-                )
+                if (
+                    preg_match(
+                        "/(\*|[a-zA-Z0-9]{1,8}(?:-[a-zA-Z0-9]{1,8})*)(?:\s*;\s*q\s*=\s*(0(?:\.\d{0,3})|1(?:\.0{0,3})))?/",
+                        trim($languageRange),
+                        $match,
+                    )
                 ) {
                     if (!isset($match[2])) {
-                        $match[2] = '1.0';
+                        $match[2] = "1.0";
                     } else {
                         $match[2] = (string) floatval($match[2]);
                     }
@@ -265,14 +284,17 @@ class I18n
      */
     public static function getLanguageLabels($languages = [])
     {
-        $file = self::_getPath('languages.json');
+        $file = self::_getPath("languages.json");
         if (count(self::$_languageLabels) == 0 && is_readable($file)) {
             self::$_languageLabels = Json::decode(file_get_contents($file));
         }
         if (count($languages) == 0) {
             return self::$_languageLabels;
         }
-        return array_intersect_key(self::$_languageLabels, array_flip($languages));
+        return array_intersect_key(
+            self::$_languageLabels,
+            array_flip($languages),
+        );
     }
 
     /**
@@ -297,12 +319,13 @@ class I18n
      * @param  string $file
      * @return string
      */
-    protected static function _getPath($file = '')
+    protected static function _getPath($file = "")
     {
         if (strlen(self::$_path) == 0) {
-            self::$_path = PUBLIC_PATH . DIRECTORY_SEPARATOR . 'i18n';
+            self::$_path = PUBLIC_PATH . DIRECTORY_SEPARATOR . "i18n";
         }
-        return self::$_path . (strlen($file) ? DIRECTORY_SEPARATOR . $file : '');
+        return self::$_path .
+            (strlen($file) ? DIRECTORY_SEPARATOR . $file : "");
     }
 
     /**
@@ -318,30 +341,58 @@ class I18n
     protected static function _getPluralForm($n)
     {
         switch (self::$_language) {
-            case 'cs':
-            case 'sk':
+            case "cs":
+            case "sk":
                 return $n === 1 ? 0 : ($n >= 2 && $n <= 4 ? 1 : 2);
-            case 'co':
-            case 'fr':
-            case 'oc':
-            case 'tr':
-            case 'zh':
+            case "co":
+            case "fr":
+            case "oc":
+            case "tr":
+            case "zh":
                 return $n > 1 ? 1 : 0;
-            case 'he':
-                return $n === 1 ? 0 : ($n === 2 ? 1 : (($n < 0 || $n > 10) && ($n % 10 === 0) ? 2 : 3));
-            case 'id':
-            case 'jbo':
-            case 'th':
+            case "he":
+                return $n === 1
+                    ? 0
+                    : ($n === 2
+                        ? 1
+                        : (($n < 0 || $n > 10) && $n % 10 === 0
+                            ? 2
+                            : 3));
+            case "id":
+            case "jbo":
+            case "th":
                 return 0;
-            case 'lt':
-                return $n % 10 === 1 && $n % 100 !== 11 ? 0 : (($n % 10 >= 2 && $n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
-            case 'pl':
-                return $n === 1 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
-            case 'ru':
-            case 'uk':
-                return $n % 10 === 1 && $n % 100 != 11 ? 0 : ($n % 10 >= 2 && $n % 10 <= 4 && ($n % 100 < 10 || $n % 100 >= 20) ? 1 : 2);
-            case 'sl':
-                return $n % 100 === 1 ? 1 : ($n % 100 === 2 ? 2 : ($n % 100 === 3 || $n % 100 === 4 ? 3 : 0));
+            case "lt":
+                return $n % 10 === 1 && $n % 100 !== 11
+                    ? 0
+                    : (($n % 10 >= 2 && $n % 100 < 10) || $n % 100 >= 20
+                        ? 1
+                        : 2);
+            case "pl":
+                return $n === 1
+                    ? 0
+                    : ($n % 10 >= 2 &&
+                    $n % 10 <= 4 &&
+                    ($n % 100 < 10 || $n % 100 >= 20)
+                        ? 1
+                        : 2);
+            case "ru":
+            case "uk":
+                return $n % 10 === 1 && $n % 100 != 11
+                    ? 0
+                    : ($n % 10 >= 2 &&
+                    $n % 10 <= 4 &&
+                    ($n % 100 < 10 || $n % 100 >= 20)
+                        ? 1
+                        : 2);
+            case "sl":
+                return $n % 100 === 1
+                    ? 1
+                    : ($n % 100 === 2
+                        ? 2
+                        : ($n % 100 === 3 || $n % 100 === 4
+                            ? 3
+                            : 0));
                 // bg, ca, de, el, en, es, et, fi, hu, it, nl, no, pt
             default:
                 return $n !== 1 ? 1 : 0;
@@ -359,10 +410,12 @@ class I18n
      * @param  array $availableLanguages
      * @return string
      */
-    protected static function _getMatchingLanguage($acceptedLanguages, $availableLanguages)
-    {
+    protected static function _getMatchingLanguage(
+        $acceptedLanguages,
+        $availableLanguages,
+    ) {
         $matches = [];
-        $any     = false;
+        $any = false;
         foreach ($acceptedLanguages as $acceptedQuality => $acceptedValues) {
             $acceptedQuality = floatval($acceptedQuality);
             if ($acceptedQuality === 0.0) {
@@ -371,12 +424,18 @@ class I18n
             foreach ($availableLanguages as $availableValue) {
                 $availableQuality = 1.0;
                 foreach ($acceptedValues as $acceptedValue) {
-                    if ($acceptedValue === '*') {
+                    if ($acceptedValue === "*") {
                         $any = true;
                     }
-                    $matchingGrade = self::_matchLanguage($acceptedValue, $availableValue);
+                    $matchingGrade = self::_matchLanguage(
+                        $acceptedValue,
+                        $availableValue,
+                    );
                     if ($matchingGrade > 0) {
-                        $q = (string) ($acceptedQuality * $availableQuality * $matchingGrade);
+                        $q =
+                            (string) ($acceptedQuality *
+                                $availableQuality *
+                                $matchingGrade);
                         if (!isset($matches[$q])) {
                             $matches[$q] = [];
                         }
@@ -389,7 +448,7 @@ class I18n
         }
         if (count($matches) === 0 && $any) {
             if (count($availableLanguages) > 0) {
-                $matches['1.0'] = $availableLanguages;
+                $matches["1.0"] = $availableLanguages;
             }
         }
         if (count($matches) === 0) {
@@ -413,8 +472,8 @@ class I18n
      */
     protected static function _matchLanguage($a, $b)
     {
-        $a = explode('-', $a);
-        $b = explode('-', $b);
+        $a = explode("-", $a);
+        $b = explode("-", $b);
         for ($i = 0, $n = min(count($a), count($b)); $i < $n; ++$i) {
             if ($a[$i] !== $b[$i]) {
                 break;
