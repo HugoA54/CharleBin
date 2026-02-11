@@ -426,9 +426,9 @@ jobs:
 
 Une fois ce fichier poussé sur le dépôt, j'ai vérifié dans l'onglet Actions de GitHub que le workflow s'exécutait correctement 
 
-**2. Protection de la branche `main**`
+**2. Protection de la branche main**
 
-Pour forcer l'utilisation des Pull Requests et garantir que le code est propre avant intégration, j'ai configuré la protection de la branche `main`.
+Pour forcer l'utilisation des Pull Requests et garantir que le code est propre avant intégration, j'ai configuré la protection de la branche main.
 
 **Mes manipulations dans les "Settings" du dépôt GitHub :**
 
@@ -487,10 +487,10 @@ Le code suggéré par l'IA est plus robuste et plus performant. En supprimant le
 
 **1. Récupération d'un mot de passe via la Console**
 
-L'objectif était de récupérer le contenu d'un champ mot de passe sans modifier le HTML pour le passer en `type="text"`.
+L'objectif était de récupérer le contenu d'un champ mot de passe 
 
 * **Démarche :**
-1. J'ai d'abord tenté la commande intuitive `document.getElementById('password')`, mais la console a retourné `null`.
+1. J'ai d'abord tenté la commande intuitive `document.getElementById('password')`, mais la console a retourné null
 
 
 2. J'ai utilisé l'onglet Éléments pour analyser le code source du formulaire. J'ai découvert que l'ID du champ était `passwordinput`.
@@ -523,9 +523,7 @@ J'ai vérifié que les données quittent mon navigateur sous forme chiffrée et 
 
 * **Preuve :** Le paramètre `data` ne contient pas mon texte. Il contient une chaîne JSON  avec les clés :
 * 
-`aes`, `gcm`, `zlib` : Indiquant l'algorithme de chiffrement et de compression utilisé.
-
-
+*  `aes`, `gcm`, `zlib` : Indiquant l'algorithme de chiffrement et de compression utilisé.
 * `ct` : Le contenu illisible de mon message chiffré.
 * `iv`, `salt` : Les vecteurs d'initialisation et sels cryptographiques.
 Ceci confirme que le chiffrement a lieu coté client avant tout transfert réseau.
@@ -541,7 +539,49 @@ J'ai vérifié que PrivateBin ne laisse aucune trace persistante sur la machine 
 
 
 * **Preuve :**
-* **Local Storage** : Aucune entrée correspondant au message.
-* **Session Storage** : Vide.
-* **Cookies** : Aucun cookie ne contient de données sensibles (message ou mot de passe).
-Cela valide le principe de "Zero Knowledge" de l'application : une fois l'onglet fermé, les données déchiffrées sont perdues pour de bon.
+* **Local Storage** : Vide
+* **Session Storage** : Vide
+* **Cookies** : Il n'y a que la langue
+
+
+## Séance 6 - Tests Cypress
+
+### Exercice #1 - Création d'un test complet
+
+J'ai mis en place un test automatisé avec Cypress pour vérifier  la création sécurisée et la relecture d'un message.
+
+**Problèmes rencontrés et solutions :**
+Lors du développement du test, j'ai rencontré deux difficultés liées à l'interface dynamique de PrivateBin :
+1.  **Conflit d'id lors de la création :** L'application possède deux champs de mot de passe (un visible et un caché). J'ai dû cibler spécifiquement le champ visible avec le sélecteur `cy.get('#passwordinput:visible')`.
+2.  **Affichage du déchiffrement :** Lors de la relecture, le champ de mot de passe (`#passworddecrypt`) apparaît avec une animation. Pour éviter que le test n'échoue à cause de ce délai, j'ai utilisé l'option `{ force: true }` lors de la saisie.
+
+Code final du test (`cypress/e2e/charlebin.cy.js`) :
+
+```javascript
+describe('Scenario nominal PrivateBin', () => {
+  it('Test création et lecture', () => {
+    const msg = "test " + Date.now();
+    const mdp = "123456";
+
+    cy.visit('http://localhost:8080');
+
+    cy.get('#message').type(msg);
+    cy.get('#passwordinput:visible').type(mdp);
+    
+    cy.get('#burnafterreading').uncheck({ force: true });
+
+    cy.get('#sendbutton').click();
+    
+    cy.url().should('include', '?');
+
+    cy.url().then((url) => {
+      cy.visit(url);
+
+      cy.get('#passworddecrypt').type(mdp, { force: true });
+      cy.get('#passworddecrypt').type('{enter}', { force: true });
+
+      cy.contains(msg).should('be.visible');
+    });
+  });
+});
+```
