@@ -66,7 +66,8 @@ class Database extends AbstractData
         }
 
         // initialize the db connection with new options
-        if (array_key_exists('dsn', $options)
+        if (
+            array_key_exists('dsn', $options)
             && array_key_exists('usr', $options)
             && array_key_exists('pwd', $options)
             && array_key_exists('opt', $options)
@@ -611,7 +612,7 @@ class Database extends AbstractData
             case 'mssql':
                 // U: tables created by the user
                 $sql = 'SELECT "name" FROM "sysobjects" '
-                     . 'WHERE "type" = \'U\' ORDER BY "name"';
+                 . 'WHERE "type" = \'U\' ORDER BY "name"';
                 break;
             case 'mysql':
                 $sql = 'SHOW TABLES';
@@ -621,22 +622,22 @@ class Database extends AbstractData
                 break;
             case 'pgsql':
                 $sql = 'SELECT c."relname" AS "table_name" '
-                     . 'FROM "pg_class" c, "pg_user" u '
-                     . 'WHERE c."relowner" = u."usesysid" AND c."relkind" = \'r\' '
-                     . 'AND NOT EXISTS (SELECT 1 FROM "pg_views" WHERE "viewname" = c."relname") '
-                     . "AND c.\"relname\" !~ '^(pg_|sql_)' "
-                     . 'UNION '
-                     . 'SELECT c."relname" AS "table_name" '
-                     . 'FROM "pg_class" c '
-                     . "WHERE c.\"relkind\" = 'r' "
-                     . 'AND NOT EXISTS (SELECT 1 FROM "pg_views" WHERE "viewname" = c."relname") '
-                     . 'AND NOT EXISTS (SELECT 1 FROM "pg_user" WHERE "usesysid" = c."relowner") '
-                     . "AND c.\"relname\" !~ '^pg_'";
+                 . 'FROM "pg_class" c, "pg_user" u '
+                 . 'WHERE c."relowner" = u."usesysid" AND c."relkind" = \'r\' '
+                 . 'AND NOT EXISTS (SELECT 1 FROM "pg_views" WHERE "viewname" = c."relname") '
+                 . "AND c.\"relname\" !~ '^(pg_|sql_)' "
+                 . 'UNION '
+                 . 'SELECT c."relname" AS "table_name" '
+                 . 'FROM "pg_class" c '
+                 . "WHERE c.\"relkind\" = 'r' "
+                 . 'AND NOT EXISTS (SELECT 1 FROM "pg_views" WHERE "viewname" = c."relname") '
+                 . 'AND NOT EXISTS (SELECT 1 FROM "pg_user" WHERE "usesysid" = c."relowner") '
+                 . "AND c.\"relname\" !~ '^pg_'";
                 break;
             case 'sqlite':
                 $sql = 'SELECT "name" FROM "sqlite_master" WHERE "type"=\'table\' '
-                     . 'UNION ALL SELECT "name" FROM "sqlite_temp_master" '
-                     . 'WHERE "type"=\'table\' ORDER BY "name"';
+                 . 'UNION ALL SELECT "name" FROM "sqlite_temp_master" '
+                 . 'WHERE "type"=\'table\' ORDER BY "name"';
                 break;
             default:
                 throw new Exception(

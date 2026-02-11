@@ -71,7 +71,8 @@ class Filesystem extends AbstractData
     public function __construct(array $options)
     {
         // if given update the data directory
-        if (is_array($options)
+        if (
+            is_array($options)
             && array_key_exists('dir', $options)
         ) {
             $this->_path = $options['dir'];
@@ -108,7 +109,8 @@ class Filesystem extends AbstractData
      */
     public function read($pasteid)
     {
-        if (!$this->exists($pasteid)
+        if (
+            !$this->exists($pasteid)
             || !$paste = $this->_get($this->_dataid2path($pasteid) . $pasteid . '.php')
         ) {
             return false;
@@ -372,7 +374,8 @@ class Filesystem extends AbstractData
         foreach ($files as $pasteid) {
             if ($this->exists($pasteid)) {
                 $data = $this->read($pasteid);
-                if (array_key_exists('expire_date', $data['meta'])
+                if (
+                    array_key_exists('expire_date', $data['meta'])
                     && $data['meta']['expire_date'] < $time
                 ) {
                     $pastes[] = $pasteid;
@@ -484,7 +487,8 @@ class Filesystem extends AbstractData
                     LOCK_EX
                 );
             }
-            if ($fileCreated === false
+            if (
+                $fileCreated === false
                 || $writtenBytes === false
                 || $writtenBytes < strlen(self::HTACCESS_LINE . PHP_EOL)
             ) {

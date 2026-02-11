@@ -88,7 +88,8 @@ class YourlsProxy
             return;
         }
 
-        if (!is_null($data)
+        if (
+            !is_null($data)
             && array_key_exists('statusCode', $data)
             && $data['statusCode'] == 200
             && array_key_exists('shorturl', $data)
